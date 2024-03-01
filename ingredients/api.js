@@ -38,8 +38,10 @@ router.get("/search", async (req, res) => {
     page = page ? page : 0;
     console.log("search ingredients", term, page);
     const { rows } = await pool.query(`
-        select * from ingredients where title ilike $1`
-        , [`'%${term}%'`] );
+        select *,
+        count(*) over ()::int as total_count
+        from ingredients where title ilike $2 limit 5 offset $1;`, [page*5, `%${term}%`]);
+
 
     //const { rows } = await pool.query(`
     //    select *, count(*) over()::INT
